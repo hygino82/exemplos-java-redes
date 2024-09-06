@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Locale;
 
 public class Servidor implements Runnable {
 
@@ -17,9 +18,12 @@ public class Servidor implements Runnable {
     public void run() {
         try {
             DataInputStream entrada = new DataInputStream(socket.getInputStream());
-            String mensagem = entrada.readUTF();
-            mensagem = mensagem.toUpperCase();
-            System.out.println("A mensagem em maicusculo: " + mensagem);
+            final double peso = entrada.readDouble();
+            final double altura = entrada.readDouble();
+            final double imc = peso / Math.pow(altura, 2);
+            System.out.printf("Peso = %.4f\n", peso);
+            System.out.printf("Altura = %.4f\n", altura);
+            System.out.printf("IMC = %.4f\n", imc);
             entrada.close();
             socket.close();
         } catch (IOException ioe) {
@@ -28,7 +32,8 @@ public class Servidor implements Runnable {
     }
 
     public static void main(String[] args) {
-        try (ServerSocket servidor = new ServerSocket(54321)){
+        Locale.setDefault(Locale.US);
+        try (ServerSocket servidor = new ServerSocket(54321)) {
             while (true) {
                 Socket conexao = servidor.accept();
                 System.out.println("Um cliente se conectou...");
