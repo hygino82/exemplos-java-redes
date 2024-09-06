@@ -16,15 +16,14 @@ public class Servidor implements Runnable {
 
     @Override
     public void run() {
-        try {
-            DataInputStream entrada = new DataInputStream(socket.getInputStream());
+        try (DataInputStream entrada = new DataInputStream(socket.getInputStream())) {
+
             final double peso = entrada.readDouble();
             final double altura = entrada.readDouble();
             final double imc = peso / Math.pow(altura, 2);
             System.out.printf("Peso = %.4f\n", peso);
             System.out.printf("Altura = %.4f\n", altura);
             System.out.printf("IMC = %.4f\n", imc);
-            entrada.close();
             socket.close();
         } catch (IOException ioe) {
             System.out.println("Erro: " + ioe.toString());
