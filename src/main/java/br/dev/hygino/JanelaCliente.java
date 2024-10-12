@@ -1,9 +1,11 @@
 package br.dev.hygino;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.*;
 
-public class JanelaCliente extends JFrame {
+public final class JanelaCliente extends JFrame {
 
     private JPanel painel;
     private JLabel lbValor;
@@ -26,8 +28,22 @@ public class JanelaCliente extends JFrame {
         txtValor = new JTextField();
         txtTaxa = new JTextField();
         txtPeriodo = new JTextField();
-        txtResultado = new JTextArea(30,80);
+        txtResultado = new JTextArea();
         btnCalcular = new JButton("Calcular");
+
+        btnCalcular.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    final double valor = Double.parseDouble(txtValor.getText());
+                    final double taxa = Double.parseDouble(txtTaxa.getText());
+                    final int periodo = Integer.parseInt(txtPeriodo.getText());
+                    SwingUtilities.invokeLater(() -> new ThreadCliente(txtResultado, valor, taxa, periodo).start());
+                } catch (NumberFormatException nfe) {
+                    JOptionPane.showMessageDialog(null, "Formato numerico invalido");
+                }
+            }
+        });
 
         painel.add(lbValor);
         painel.add(txtValor);
@@ -36,6 +52,14 @@ public class JanelaCliente extends JFrame {
         painel.add(lbPeriodo);
         painel.add(txtPeriodo);
         painel.add(btnCalcular);
+
+        final Font font = new Font("Arial", Font.PLAIN, 20);
+        txtResultado.setFont(font);
+        txtResultado.setPreferredSize(new Dimension(500, 200));
+
+        txtValor.setText("12000");
+        txtTaxa.setText("3");
+        txtPeriodo.setText("6");
 
         add(painel);
         add(new JScrollPane(txtResultado));

@@ -5,11 +5,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 
-public class ThreadCliente implements Runnable {
+public final class ThreadCliente extends Thread {
 
     private final JTextArea txtResultado;
     private final double valor;
@@ -28,7 +28,9 @@ public class ThreadCliente implements Runnable {
 
     @Override
     public void run() {
-        try (Socket conexao = new Socket()) {
+        try {
+            System.out.println("Enviando dados ao Servidor");
+            Socket conexao = new Socket("127.0.0.1", 57000);
             saida = new DataOutputStream(conexao.getOutputStream());
             entrada = new ObjectInputStream(conexao.getInputStream());
 
@@ -37,10 +39,13 @@ public class ThreadCliente implements Runnable {
             saida.writeInt(periodo);
 
             List<Parcela> parcelas = (List<Parcela>) entrada.readObject();
-        } catch (IOException e) {
-            System.out.println("Erro");
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(ThreadCliente.class.getName()).log(Level.SEVERE, null, ex);
+           
+                parcelas.forEach(p -> txtResultado.append(p.toString() + '\n'));
+          
+
+            conexao.close();
+        } catch (IOException | ClassNotFoundException ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage());
         }
     }
 
