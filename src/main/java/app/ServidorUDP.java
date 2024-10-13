@@ -14,37 +14,39 @@ public class ServidorUDP {
 
     public static void main(String[] args) {
         try (DatagramSocket socket = new DatagramSocket(porta)) {
-            System.out.println("Aguardando conexão...");
-            byte[] bufferEntrada = new byte[1024];
-            DatagramPacket pacoteEntrada = new DatagramPacket(bufferEntrada, bufferEntrada.length);
-            socket.receive(pacoteEntrada);
+            while (true) {
+                System.out.println("Aguardando conexão...");
+                byte[] bufferEntrada = new byte[1024];
+                DatagramPacket pacoteEntrada = new DatagramPacket(bufferEntrada, bufferEntrada.length);
+                socket.receive(pacoteEntrada);
 
-            var endereco = pacoteEntrada.getAddress();
-            int porta = pacoteEntrada.getPort();
+                var endereco = pacoteEntrada.getAddress();
+                int porta = pacoteEntrada.getPort();
 
-            System.out.printf("Objeto recebido de: %s %d", endereco, porta);
+                System.out.printf("Objeto recebido de: %s %d", endereco, porta);
 
-            //deserializa o objeto
-            ByteArrayInputStream bais = new ByteArrayInputStream(pacoteEntrada.getData());
-            ObjectInputStream ois = new ObjectInputStream(bais);
-            Emprestimo emprestimo = (Emprestimo) ois.readObject();
-            ois.close();
+                //deserializa o objeto
+                ByteArrayInputStream bais = new ByteArrayInputStream(pacoteEntrada.getData());
+                ObjectInputStream ois = new ObjectInputStream(bais);
+                Emprestimo emprestimo = (Emprestimo) ois.readObject();
+                ois.close();
 
-            // Exibe a mensagem do objeto
-            System.out.println("Mensagem recebida: " + emprestimo);
+                // Exibe a mensagem do objeto
+                System.out.println("Mensagem recebida: " + emprestimo);
 
-            final double parcela = calcularParcela(emprestimo);
+                final double parcela = calcularParcela(emprestimo);
 
-            byte[] bufferSaida = new byte[8]; // Tamanho de um double em bytes
+                byte[] bufferSaida = new byte[8]; // Tamanho de um double em bytes
 
-            // Converte o double para bytes
-            ByteBuffer byteBuffer = ByteBuffer.wrap(bufferSaida);
-            byteBuffer.putDouble(parcela);
+                // Converte o double para bytes
+                ByteBuffer byteBuffer = ByteBuffer.wrap(bufferSaida);
+                byteBuffer.putDouble(parcela);
 
-            // Envia o pacote
-            DatagramPacket packet = new DatagramPacket(bufferSaida, bufferSaida.length, endereco, porta);
-            socket.send(packet);
-            System.out.println("Valor enviado: " + parcela);
+                // Envia o pacote
+                DatagramPacket packet = new DatagramPacket(bufferSaida, bufferSaida.length, endereco, porta);
+                socket.send(packet);
+                System.out.println("Valor enviado: " + parcela);
+            }
         } catch (IOException | ClassNotFoundException ex) {
             System.out.println(ex.getMessage());
         }
