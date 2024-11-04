@@ -10,9 +10,9 @@ public interface IGerenciadorQuartos extends Remote {
 
     List<Quarto> exibirQuartos() throws RemoteException;
 
-    List<Quarto> exibirQuartosDesucupados() throws RemoteException;
+    List<Quarto> exibirQuartosDesocupados() throws RemoteException;
 
     List<Reserva> exibirReservas() throws RemoteException;
 
-    void desucuparQuarto(Reserva reserva) throws RemoteException;
+    void desocuparQuarto(Reserva reserva) throws RemoteException;
 }

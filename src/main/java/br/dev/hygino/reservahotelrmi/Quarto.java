@@ -1,8 +1,11 @@
 package br.dev.hygino.reservahotelrmi;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-public final class Quarto {
+public final class Quarto implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private UUID idQuarto;
     private int tipoQuarto;
@@ -72,6 +75,6 @@ public final class Quarto {
 
     @Override
     public String toString() {
-        return "Quarto{" + "idQuarto=" + idQuarto + ", tipoQuarto=" + tipoQuarto + ", descricao=" + descricao + ", preco=" + preco + ", ocupado=" + ocupado + '}';
+        return tipoQuarto + ", " + descricao + ", " + preco + ", " + ocupado + '}';
     }
 }

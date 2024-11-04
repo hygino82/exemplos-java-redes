@@ -6,6 +6,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -14,21 +15,22 @@ import java.util.stream.IntStream;
 
 public class ServidorHotel extends UnicastRemoteObject implements IGerenciadorQuartos {
 
+    private static Registry servidorRegistro;
     private List<Quarto> listaQuartos;
     private List<Reserva> listaReservas;
 
     private List<Quarto> cadastrarQuartos() {
         List<Quarto> quartos = new ArrayList<>();
         IntStream.rangeClosed(1, 10)
-                .forEach(q -> quartos.add(new Quarto(0)));
+                .forEach(q -> quartos.add(new Quarto(0))); // 10 quartos tipo 0
         IntStream.rangeClosed(1, 20)
-                .forEach(q -> quartos.add(new Quarto(1)));
+                .forEach(q -> quartos.add(new Quarto(1))); // 20 quartos tipo 1
         IntStream.rangeClosed(1, 5)
-                .forEach(q -> quartos.add(new Quarto(2)));
+                .forEach(q -> quartos.add(new Quarto(2))); // 5 quartos tipo 2
         IntStream.rangeClosed(1, 3)
-                .forEach(q -> quartos.add(new Quarto(3)));
+                .forEach(q -> quartos.add(new Quarto(3))); // 3 quartos tipo 3
         IntStream.rangeClosed(1, 2)
-                .forEach(q -> quartos.add(new Quarto(4)));
+                .forEach(q -> quartos.add(new Quarto(4))); // 2 quartos tipo 4
         return quartos;
     }
 
@@ -41,7 +43,7 @@ public class ServidorHotel extends UnicastRemoteObject implements IGerenciadorQu
     @Override
     public void ocuparQuarto(Quarto quarto, String nome) throws RemoteException {
         quarto.setOcupado(true);
-        listaReservas.add(new Reserva(nome, quarto));
+        listaReservas.add(new Reserva(nome, quarto, LocalDateTime.now()));
     }
 
     @Override
@@ -50,7 +52,7 @@ public class ServidorHotel extends UnicastRemoteObject implements IGerenciadorQu
     }
 
     @Override
-    public void desucuparQuarto(Reserva reserva) {
+    public void desocuparQuarto(Reserva reserva) {
         reserva.quarto().setOcupado(false);
         listaReservas.remove(reserva);
     }
@@ -61,7 +63,7 @@ public class ServidorHotel extends UnicastRemoteObject implements IGerenciadorQu
     }
 
     @Override
-    public List<Quarto> exibirQuartosDesucupados() throws RemoteException {
+    public List<Quarto> exibirQuartosDesocupados() throws RemoteException {
         return listaQuartos.stream()
                 .filter(q -> !q.isOcupado())
                 .toList();
@@ -69,7 +71,7 @@ public class ServidorHotel extends UnicastRemoteObject implements IGerenciadorQu
 
     public static void main(String[] args) {
         try {
-            Registry servidorRegistro = LocateRegistry.createRegistry(1099);
+            servidorRegistro = LocateRegistry.createRegistry(1099);
             Naming.rebind("hotel", new ServidorHotel());
             System.out.println("Aguardando requisicoes...");
         } catch (RemoteException | MalformedURLException ex) {
