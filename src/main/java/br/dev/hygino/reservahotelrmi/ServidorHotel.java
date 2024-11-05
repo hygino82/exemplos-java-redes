@@ -18,19 +18,20 @@ public class ServidorHotel extends UnicastRemoteObject implements IGerenciadorQu
     private static Registry servidorRegistro;
     private List<Quarto> listaQuartos;
     private List<Reserva> listaReservas;
+    private int contadorQuartos = 0;
 
     private List<Quarto> cadastrarQuartos() {
         List<Quarto> quartos = new ArrayList<>();
         IntStream.rangeClosed(1, 10)
-                .forEach(q -> quartos.add(new Quarto(0))); // 10 quartos tipo 0
+                .forEach(q -> quartos.add(new Quarto(0, ++contadorQuartos))); // 10 quartos tipo 0
         IntStream.rangeClosed(1, 20)
-                .forEach(q -> quartos.add(new Quarto(1))); // 20 quartos tipo 1
+                .forEach(q -> quartos.add(new Quarto(1, ++contadorQuartos))); // 20 quartos tipo 1
         IntStream.rangeClosed(1, 5)
-                .forEach(q -> quartos.add(new Quarto(2))); // 5 quartos tipo 2
+                .forEach(q -> quartos.add(new Quarto(2, ++contadorQuartos))); // 5 quartos tipo 2
         IntStream.rangeClosed(1, 3)
-                .forEach(q -> quartos.add(new Quarto(3))); // 3 quartos tipo 3
+                .forEach(q -> quartos.add(new Quarto(3, ++contadorQuartos))); // 3 quartos tipo 3
         IntStream.rangeClosed(1, 2)
-                .forEach(q -> quartos.add(new Quarto(4))); // 2 quartos tipo 4
+                .forEach(q -> quartos.add(new Quarto(4, ++contadorQuartos))); // 2 quartos tipo 4
         return quartos;
     }
 

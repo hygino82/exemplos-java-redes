@@ -7,19 +7,20 @@ public final class Quarto implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private UUID idQuarto;
+    private int idQuarto;
     private int tipoQuarto;
     private String descricao;
     private double preco;
     private boolean ocupado = false;
 
-    public Quarto(int tipoQuarto) {
+    public Quarto(int tipoQuarto, int idQuarto) {
+        this.idQuarto = idQuarto;
+
         if (tipoQuarto < 0 || tipoQuarto > 4) {
             throw new IllegalArgumentException("Tipo de quarto invalido");
         }
 
         this.tipoQuarto = tipoQuarto;
-        idQuarto = UUID.randomUUID();
 
         switch (tipoQuarto) {
             case 0:
@@ -69,12 +70,12 @@ public final class Quarto implements Serializable {
         this.ocupado = ocupado;
     }
 
-    public UUID getIdQuarto() {
+    public int getIdQuarto() {
         return idQuarto;
     }
 
     @Override
     public String toString() {
-        return tipoQuarto + ", " + descricao + ", " + preco + ", " + ocupado + '}';
+        return idQuarto + ", " + descricao + ", " + preco;
     }
 }
