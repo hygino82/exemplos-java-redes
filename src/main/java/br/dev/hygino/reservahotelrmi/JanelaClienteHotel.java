@@ -11,16 +11,16 @@ import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 
 public class JanelaClienteHotel extends javax.swing.JFrame {
-    
+
     private List<Quarto> quartosDesocupados;
     private List<Reserva> quartosReservados;
-    
+
     public JanelaClienteHotel() {
         initComponents();
     }
-    
+
     @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">                          
     private void initComponents() {
 
         lbNome = new javax.swing.JLabel();
@@ -64,17 +64,18 @@ public class JanelaClienteHotel extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(lbQuartosLivres)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(lbNome)
-                        .addGap(18, 18, 18)
-                        .addComponent(txtNome, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnReservar))
-                    .addComponent(jScrollPane1)
-                    .addComponent(jScrollPane2))
-                .addContainerGap(203, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(lbQuartosLivres)
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(lbNome)
+                            .addGap(18, 18, 18)
+                            .addComponent(txtNome, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(btnReservar))
+                        .addComponent(jScrollPane1))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 577, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(28, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -94,13 +95,13 @@ public class JanelaClienteHotel extends javax.swing.JFrame {
         );
 
         pack();
-    }// </editor-fold>//GEN-END:initComponents
+    }// </editor-fold>                        
 
-    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {                                  
         listarQuartosDesocupados();
         listarQuartosReservados();
-    }//GEN-LAST:event_formWindowOpened
-    
+    }                                 
+
     private void listarQuartosReservados() {
         try {
             IGerenciadorQuartos stub = (IGerenciadorQuartos) Naming.lookup("rmi://127.0.0.1/hotel");
@@ -111,13 +112,12 @@ public class JanelaClienteHotel extends javax.swing.JFrame {
             Logger.getLogger(JanelaClienteHotel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     private void listarQuartosDesocupados() {
         try {
             IGerenciadorQuartos stub = (IGerenciadorQuartos) Naming.lookup("rmi://127.0.0.1/hotel");
             quartosDesocupados = stub.exibirQuartosDesocupados();
 
-            // quartosDesocupados.forEach(System.out::println);
             // Cria um modelo para o JList
             DefaultListModel<Quarto> modelo = new DefaultListModel<>();
 
@@ -126,28 +126,31 @@ public class JanelaClienteHotel extends javax.swing.JFrame {
                 modelo.addElement(quarto);
             }
             lstQuartosDesocupados.setModel(modelo);
+            final int quartosDisponiveis = modelo.size();
+            lbQuartosLivres.setText("Quartos disponíveis: " + quartosDisponiveis);
         } catch (RemoteException | NotBoundException | MalformedURLException ex) {
             Logger.getLogger(JanelaClienteHotel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    private void btnReservarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReservarActionPerformed
-        String nome = txtNome.getText().trim(); // Remove espaços em branco
+    private void btnReservarActionPerformed(java.awt.event.ActionEvent evt) {                                            
+        String nome = txtNome.getText().trim();
         Quarto quartoSelecionado = lstQuartosDesocupados.getSelectedValue();
-        
+
         if (nome.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Por favor, insira seu nome.", "Erro", JOptionPane.ERROR_MESSAGE);
-            return; // Sai do método se o nome estiver vazio
+            return;
         }
-        
+
         if (quartoSelecionado != null) {
             try {
                 IGerenciadorQuartos stub = (IGerenciadorQuartos) Naming.lookup("rmi://127.0.0.1/hotel");
-                stub.ocuparQuarto(quartoSelecionado, nome);
+                stub.ocuparQuarto(quartoSelecionado, nome);  // Realiza a reserva
                 JOptionPane.showMessageDialog(this, "Reserva realizada com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-                
-                DefaultListModel<Quarto> modelo = (DefaultListModel<Quarto>) lstQuartosDesocupados.getModel();
-                modelo.removeElement(quartoSelecionado);
+
+                // Recarregar as listas de quartos reservados e desocupados do servidor
+                listarQuartosReservados();
+                listarQuartosDesocupados();
             } catch (RemoteException e) {
                 JOptionPane.showMessageDialog(this, "Erro ao reservar o quarto: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
                 Logger.getLogger(JanelaClienteHotel.class.getName()).log(Level.SEVERE, null, e);
@@ -155,14 +158,10 @@ public class JanelaClienteHotel extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, "Erro de conexão com o servidor: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
                 Logger.getLogger(JanelaClienteHotel.class.getName()).log(Level.SEVERE, null, e);
             }
-
-            // Atualiza a lista de quartos desocupados
-            //listarQuartosDesocupados();
         } else {
             JOptionPane.showMessageDialog(this, "Nenhum quarto selecionado.", "Erro", JOptionPane.ERROR_MESSAGE);
         }
-        listarQuartosReservados();
-    }//GEN-LAST:event_btnReservarActionPerformed
+    }                                           
 
     /**
      * @param args the command line arguments
@@ -170,9 +169,6 @@ public class JanelaClienteHotel extends javax.swing.JFrame {
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -192,14 +188,12 @@ public class JanelaClienteHotel extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new JanelaClienteHotel().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new JanelaClienteHotel().setVisible(true);
         });
     }
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+    // Variables declaration - do not modify                     
     private javax.swing.JButton btnReservar;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
@@ -208,5 +202,6 @@ public class JanelaClienteHotel extends javax.swing.JFrame {
     private javax.swing.JList<Quarto> lstQuartosDesocupados;
     private javax.swing.JTextField txtNome;
     private javax.swing.JTextArea txtReservas;
-    // End of variables declaration//GEN-END:variables
+    // End of variables declaration                   
 }
+

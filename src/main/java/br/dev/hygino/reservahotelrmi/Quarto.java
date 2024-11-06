@@ -1,7 +1,6 @@
 package br.dev.hygino.reservahotelrmi;
 
 import java.io.Serializable;
-import java.util.UUID;
 
 public final class Quarto implements Serializable {
 

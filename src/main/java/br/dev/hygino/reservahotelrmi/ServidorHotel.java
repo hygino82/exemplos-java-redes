@@ -12,12 +12,12 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class ServidorHotel extends UnicastRemoteObject implements IGerenciadorQuartos {
 
-    private static Registry servidorRegistro;
     private List<Quarto> listaQuartos;
-    private List<Reserva> listaReservas;
+    private final List<Reserva> listaReservas;
     private int contadorQuartos = 0;
 
     private List<Quarto> cadastrarQuartos() {
@@ -43,8 +43,27 @@ public class ServidorHotel extends UnicastRemoteObject implements IGerenciadorQu
 
     @Override
     public void ocuparQuarto(Quarto quarto, String nome) throws RemoteException {
-        quarto.setOcupado(true);
-        listaReservas.add(new Reserva(nome, quarto, LocalDateTime.now()));
+        // Verifica se o quarto já está ocupado
+        if (quarto.isOcupado()) {
+            throw new RemoteException("O quarto já está ocupado.");
+        }
+
+        // Busca o quarto na lista usando o id
+        var res = listaQuartos.stream()
+                .filter(q -> q.getIdQuarto() == quarto.getIdQuarto())
+                .findFirst();
+
+        // Verifica se o quarto foi encontrado
+        if (res.isPresent()) {
+            // Atualiza o status do quarto para ocupado
+            res.get().setOcupado(true);
+
+            // Adiciona a reserva à lista de reservas
+            listaReservas.add(new Reserva(nome, quarto));
+        } else {
+            // Se o quarto não for encontrado na lista, lança uma exceção
+            throw new RemoteException("Quarto não encontrado.");
+        }
     }
 
     @Override
@@ -54,8 +73,9 @@ public class ServidorHotel extends UnicastRemoteObject implements IGerenciadorQu
 
     @Override
     public void desocuparQuarto(Reserva reserva) {
-        reserva.quarto().setOcupado(false);
         listaReservas.remove(reserva);
+        reserva.getQuarto().setOcupado(false);
+        reserva.setCheckout(LocalDateTime.now());
     }
 
     @Override
@@ -72,7 +92,7 @@ public class ServidorHotel extends UnicastRemoteObject implements IGerenciadorQu
 
     public static void main(String[] args) {
         try {
-            servidorRegistro = LocateRegistry.createRegistry(1099);
+            Registry servidorRegistro = LocateRegistry.createRegistry(1099);
             Naming.rebind("hotel", new ServidorHotel());
             System.out.println("Aguardando requisicoes...");
         } catch (RemoteException | MalformedURLException ex) {
